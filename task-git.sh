@@ -1,5 +1,7 @@
 #!/bin/bash
 
+LOGFILE=/dev/null
+
 # Get task command
 TASK_COMMAND="task ${@}"
 
@@ -24,21 +26,15 @@ if ! [ -d "$DATA_DIR/.git" ]; then
     git init
     git add *
     git commit -m "Initial Commit"
+    popd
 fi
 
 # Push by default
 PUSH=1
 PULL=0
 
-# Check if we have a place to push to
-GIT_REMOTE=$(git remote -v | grep push | grep origin | awk '{print $2}')
-if [ -z $GIT_REMOTE ]; then
-    # No place to push to
-    PUSH=0
-fi
-
 # Check if --no-push is passed as an argument.
-for i
+for i in $@
 do
     if [ "$i" == "--no-push" ]; then
         # Set the PUSH flag, and remove this from the arguments list.
@@ -48,18 +44,14 @@ do
 done
 
 # Check if we are passing something that doesn't do any modifications
-for i in $@
+for i in $1
 do
     case $i in
         add|append|completed|delete|done|due|duplicate|edit|end|modify|prepend|rm|start|stop)
-            if [ "$PUSH" == 1 ]; then
-                PUSH=1
-            fi
+            echo "Push"
             ;;
         push)
-            if [ "$PUSH" == 1 ]; then
-                PUSH=1
-            fi
+            echo "Push"
             ;;
         pull)
             echo "Pull"
@@ -71,6 +63,15 @@ do
     esac
 done
 
+pushd $DATA_DIR > $LOGFILE
+# Check if we have a place to push to
+GIT_REMOTE=$(git remote -v | grep push | grep origin | awk '{print $2}')
+if [ -z $GIT_REMOTE ]; then
+    # No place to push to
+    PUSH=0
+fi
+
+
 if [ "$PULL" == 1 ]; then
     echo "Fetching & Applying updates from $GIT_REMOTE"
     git fetch && git pull
@@ -80,13 +81,16 @@ fi
 # Call task, commit files and push if flag is set.
 /usr/bin/task $@
 
+# Add to git
+git add .  > $LOGFILE
+git commit -m "$TASK_COMMAND" > $LOGFILE
 
-cd $DATA_DIR
-git add .
-git commit -m "$TASK_COMMAND" > /dev/null
-
+# Push
 if [ "$PUSH" == 1 ]; then
     echo "Pushing updates to $GIT_REMOTE"
-    git push origin master > /dev/null
+    git push origin master > $LOGFILE
 fi
+
+popd > $LOGFILE
+
 exit 0
