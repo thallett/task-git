@@ -7,10 +7,15 @@ is altered.
 ## Usage
 
 1. Navigate to your Taskwarrior data directory (usually in `~/.task`) and type `git init`. If you plan to push to a remote, go ahead and add your remote now.
-2. Add `alias task=/path/to/task-git/task-git.sh` to your `.bashrc` or
-`.profile`. If you want to push to a remote, then the alias should be `alias task=/path/to/task-git/task-git.sh --task-git-push`. Make sure you source the `.bashrc` or `.profile`.
+2. Add symlink to task-git.sh as /usr/bin/task-git
+
+    `ln -s /path/to/task-git/task-git.sh /usr/bin/task-git`
+
 3. Run `chmod +x /path/to/task-git/task-git.sh`.
-4. Use `task` as normal; when run, the Taskwarrior database files will be committed to version control.
+4. Use `task-git` instead of `task` when you want the Taskwarrior database files to be automatically committed to version control after each operation.
+5. (Optional) Edit /etc/bash_completion.d/task to add this line to the end of the file so `task-git` will <TAB>-complete the same as `task`
+
+    `complete -o nospace -F _task task-git`
 
 It is recommended to use the Taskwarrior database only on one machine, as you will be resolving conflicts if using the same task database on multiple machines.
 
@@ -18,6 +23,7 @@ It is recommended to use the Taskwarrior database only on one machine, as you wi
 
 task-git.sh
 Copyright (C) 2013 Kosta Harlan
+Copyright (C) 2015 Timothy Hallett (on modifications)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
