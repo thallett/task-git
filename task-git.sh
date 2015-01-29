@@ -63,6 +63,24 @@ do
     esac
 done
 
+# Check if we are passing a command for the second arg (filter for the first)
+if [ $PUSH -eq 0 ]
+then
+    for i in $2
+    do
+        case $i in
+            add|append|completed|delete|done|due|duplicate|edit|end|modify|prepend|rm|start|stop)
+                PUSH=1
+                echo "Push"
+                ;;
+            *)
+                ;;
+        esac
+    done
+fi
+
+
+
 pushd $DATA_DIR > $LOGFILE
 # Check if we have a place to push to
 GIT_REMOTE=$(git remote -v | grep push | grep origin | awk '{print $2}')
