@@ -96,9 +96,6 @@ if [ "$PULL" == 1 ]; then
     exit 0
 fi
 
-# Call task, commit files and push if flag is set.
-/usr/bin/task $@
-
 # Add to git
 git add .  > $LOGFILE
 git commit -m "$TASK_COMMAND" > $LOGFILE
@@ -108,6 +105,9 @@ if [ "$PUSH" == 1 ]; then
     echo "Pushing updates to $GIT_REMOTE"
     git push origin master > $LOGFILE
 fi
+
+# Call task
+/usr/bin/task $@
 
 popd > $LOGFILE
 
